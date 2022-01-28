@@ -17,70 +17,68 @@ namespace Задания
         {
             InitializeComponent();
         }
-        private MySqlConnection conn;
-        private string connStr = ("server=caseum.ru;port=33333;user=test_user;database=db_test;password=test_pass;");
-        //Получение данных из источника базы данных.
+        MySqlConnection conn;
+        string connStr = "server=caseum.ru;port=33333;user=test_user;database=db_test;password=test_pass;";
+        //DataAdapter представляет собой объект Command , получающий данные из источника данных.
         private MySqlDataAdapter MyDA = new MySqlDataAdapter();
-        //Обеспечение доступа к источнику данных.
+        //Объявление BindingSource, основная его задача, это обеспечить унифицированный доступ к источнику данных.
         private BindingSource bSource = new BindingSource();
-        //Ограничение данных и связь между таблицами.
+        //DataSet - расположенное в оперативной памяти представление данных, обеспечивающее согласованную реляционную программную 
+        //модель независимо от источника данных.DataSet представляет полный набор данных, включая таблицы, содержащие, упорядочивающие 
+        //и ограничивающие данные, а также связи между таблицами.
         private DataSet ds = new DataSet();
-        //Таблица данных в памяти.
+        //Представляет одну таблицу данных в памяти.
         private DataTable table = new DataTable();
-        //Значение Null.
+        //что бы в БД не отправлялся null
+
 
         private void Form3_Load(object sender, EventArgs e)
         {
-            // строка подключения к БД
-            string connStr = "server=caseum.ru;port=33333;user=test_user;" +
-                "database=db_test;password=test_pass;";
-            // создаём объект для подключения к БД
-            conn = new MySqlConnection(connStr);
+             conn = new MySqlConnection(connStr);
         }
 
         private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
-        {
-
-        }
-
-        private void dataGridView1_CellMouseClick(object sender, DataGridViewCellMouseEventArgs e)
         {
             try
             {
                 MessageBox.Show(dataGridView1.Rows[e.RowIndex].Cells[1].Value.ToString());
             }
-            finally
+            catch
             {
-                conn.Close();
             }
+        }
+
+        private void dataGridView1_CellMouseClick(object sender, DataGridViewCellMouseEventArgs e)
+        {
+            
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
             try
             {
-                string commandStr = "Выбор айди студента 'Код студента', ФИО студента 'ФИО', " + " Тема курсовой рабоыт студента 'Тема курсовой' Выбор студента";
-                //Открываем соединение.
+                string commandStr = "SELECT id AS 'Код', fio AS 'ФИО', " +
+                                       "theme_kurs AS 'Тема курсовой' FROM t_stud";
+                //Открываем соединение
                 conn.Open();
-                //Запрос в соединение conn.
+                //Объявляем команду, которая выполнить запрос в соединении conn
                 MyDA.SelectCommand = new MySqlCommand(commandStr, conn);
-                //Заполнение таблиц из БД.
+                //Заполняем таблицу записями из БД
                 MyDA.Fill(table);
-                //Указываем на источник.
+                //Указываем, что источником данных в bindingsource является заполненная выше таблица
                 bSource.DataSource = table;
-                //Указываем на источник.
+                //Указываем, что источником данных ДатаГрида является bindingsource 
                 dataGridView1.DataSource = bSource;
-                //Направояем dataGridView1 в правильное русло.
+                //Закрываем соединение
                 conn.Close();
-                //Закрываем соединение.
             }
-            catch
+            catch (Exception oshibka)
             {
-                MessageBox.Show($"База данных не подключена");
+                MessageBox.Show($"{oshibka}");
             }
             finally
             {
-                MessageBox.Show("База данных подключена");
+                MessageBox.Show("Вы успешно подключились к базе данных!");
                 conn.Close();
             }
         }
